@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es5", // Compila para ES5 para máxima compatibilidade
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ], // Bibliotecas incluídas na compilação
+    "allowJs": true, // Permite importar arquivos .js em projetos .ts
+    "skipLibCheck": true, // Pula a verificação de tipos em arquivos de declaração (.d.ts)
+    "esModuleInterop": true, // Melhora a interoperabilidade com módulos CommonJS
+    "allowSyntheticDefaultImports": true, // Permite importações padrão de módulos sem um 'default' export
+    "strict": true, // Habilita todas as checagens de tipo estritas
+    "forceConsistentCasingInFileNames": true, // Garante que os nomes de arquivos sejam consistentes em maiúsculas/minúsculas
+    "noFallthroughCasesInSwitch": true, // Reporta erro em 'fallthrough' de casos em switch
+    "module": "esnext", // Usa a sintaxe de módulos moderna
+    "moduleResolution": "node", // Como o TS procura os arquivos de módulo
+    "resolveJsonModule": true, // Permite importar arquivos .json
+    "isolatedModules": true, // Garante que cada arquivo possa ser transpilado sem depender de outros
+    "noEmit": true, // Não gera arquivos de saída (o Babel/Webpack fará isso)
+    "jsx": "react-jsx" // Habilita o JSX e a transformação automática do React 17+
+  },
+  "include": [
+    "src"
+  ] // Quais pastas o TypeScript deve analisar
+}
