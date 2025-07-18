@@ -1,5 +1,5 @@
 {
-  "name": "app-transactions",
+  "name": "@bytebank/app-transactions",
   "version": "1.0.0",
   "description": "Transactions component for Bytebank application",
   "main": "main.tsx",
