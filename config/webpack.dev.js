@@ -35,9 +35,9 @@ const devConfig = {
       remotes: {
         utilUi: 'utilUi@http://localhost:8310/remoteEntry.js'
       },
-      // exposes: {
-      //   './Dashboard': './src/components/Dashboard'
-      // },
+      exposes: {
+        './Transactions': './src/components/TransactionList'
+      },
 
       shared: {
         ...deps,
