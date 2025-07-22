@@ -33,7 +33,8 @@ const devConfig = {
       name: 'appTransactions',
       filename: 'remoteEntry.js',
       remotes: {
-        utilUi: 'utilUi@http://localhost:8310/remoteEntry.js'
+        utilUi: 'utilUi@http://localhost:8310/remoteEntry.js',
+        utilApi: 'utilApi@http://localhost:8311/remoteEntry.js'
       },
       exposes: {
         './Transactions': './src/components/TransactionList'
