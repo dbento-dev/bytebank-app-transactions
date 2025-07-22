@@ -12,7 +12,7 @@ import {
   formatTransactionDate
 } from '../../utils/formatters'
 
-import { useTransactions } from '../../hooks/useTransactionData'
+import { useTransactions } from '../../hooks/useTransaction'
 
 const TransactionList: React.FC = () => {
   const mockUser = {

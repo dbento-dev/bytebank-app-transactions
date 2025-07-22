@@ -18,6 +18,7 @@ interface GroupedTransactions {
 
 export const useTransactions = (accountId: string | null) => {
   const [transactions, setTransactions] = useState<GroupedTransactions>({})
+
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -56,7 +57,6 @@ export const useTransactions = (accountId: string | null) => {
           setTransactions(grouped)
         } catch (err) {
           setError('Não foi possível carregar o extrato.')
-
           console.error('Falha ao buscar transações:', err)
         } finally {
           setIsLoading(false)
