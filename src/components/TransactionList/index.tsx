@@ -14,11 +14,11 @@ import {
 
 import { useTransactions } from '../../hooks/useTransaction'
 
+import { useUserStore } from 'utilStore/stores/user'
+
 const TransactionList: React.FC = () => {
-  const mockUser = {
-    name: 'Alice Silva',
-    avatarUrl: undefined
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user = useUserStore((state: { user: any }) => state.user)
 
   const { transactions, isLoading, error } = useTransactions(
     'ce004358-f27b-4d51-9f9d-646352fb4448'
@@ -46,7 +46,7 @@ const TransactionList: React.FC = () => {
             mb: 4
           }}
         >
-          <UserInfo name={mockUser.name} avatarUrl={mockUser.avatarUrl} />
+          <UserInfo name={user?.name} avatarUrl={user?.avatarUrl} />
         </Box>
 
         <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>

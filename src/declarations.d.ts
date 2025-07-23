@@ -1,3 +1,4 @@
 declare module 'utilUi/components'
 declare module 'utilUi/ThemeProvider'
 declare module 'utilApi/api'
+declare module 'utilStore/stores/user'

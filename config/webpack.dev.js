@@ -34,7 +34,8 @@ const devConfig = {
       filename: 'remoteEntry.js',
       remotes: {
         utilUi: 'utilUi@http://localhost:8310/remoteEntry.js',
-        utilApi: 'utilApi@http://localhost:8311/remoteEntry.js'
+        utilApi: 'utilApi@http://localhost:8311/remoteEntry.js',
+        utilStore: 'utilStore@http://localhost:8312/remoteEntry.js'
       },
       exposes: {
         './Transactions': './src/components/TransactionList'
@@ -69,7 +70,8 @@ const devConfig = {
         '@mui/icons-material': {
           singleton: true,
           requiredVersion: deps['@mui/icons-material']
-        }
+        },
+        zustand: { singleton: true, requiredVersion: deps.zustand }
       }
     })
   ]
