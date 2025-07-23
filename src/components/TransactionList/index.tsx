@@ -15,13 +15,17 @@ import {
 import { useTransactions } from '../../hooks/useTransaction'
 
 import { useUserStore } from 'utilStore/stores/user'
+import { useAccountStore } from 'utilStore/stores/account'
 
 const TransactionList: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const user = useUserStore((state: { user: any }) => state.user)
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const account = useAccountStore((state: { account: any }) => state.account)
+
   const { transactions, isLoading, error } = useTransactions(
-    'ce004358-f27b-4d51-9f9d-646352fb4448'
+    account[0]?.id || null
   )
 
   if (isLoading) {
