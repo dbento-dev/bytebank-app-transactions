@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import { Alert, Box, CircularProgress, Stack, Typography } from '@mui/material'
 
-import { TransactionItem, UserInfo } from 'utilUi/components'
+import { ConfirmationModal, TransactionItem, UserInfo } from 'utilUi/components'
 
 import { Container } from './styles'
 
@@ -14,19 +14,41 @@ import {
 
 import { useTransactions } from '../../hooks/useTransaction'
 
-import { useUserStore } from 'utilStore/stores/user'
 import { useAccountStore } from 'utilStore/stores/account'
+import { useUserStore } from 'utilStore/stores/user'
 
 const TransactionList: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const user = useUserStore((state: { user: any }) => state.user)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const account = useAccountStore((state: { account: any }) => state.account)
+  const accounts = useAccountStore((state: { account: any }) => state.account)
+  const mainAccount = accounts && accounts.length > 0 ? accounts[0] : null
 
-  const { transactions, isLoading, error } = useTransactions(
-    account[0]?.id || null
+  const { groupedTransactions, handleDeleteTransaction, isLoading, error } =
+    useTransactions(mainAccount ? mainAccount.id : null, 'DESC')
+
+  const [modalOpen, setModalOpen] = useState(false)
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
+    null
   )
+
+  const openDeleteModal = (id: string) => {
+    setTransactionToDelete(id)
+    setModalOpen(true)
+  }
+
+  const closeDeleteModal = () => {
+    setTransactionToDelete(null)
+    setModalOpen(false)
+  }
+
+  const confirmDelete = () => {
+    if (transactionToDelete) {
+      handleDeleteTransaction(transactionToDelete)
+    }
+    closeDeleteModal()
+  }
 
   if (isLoading) {
     return (
@@ -70,40 +92,53 @@ const TransactionList: React.FC = () => {
             overflowY: 'auto'
           }}
         >
-          {Object.entries(transactions).map(([month, monthTransactions]) => (
-            <Box key={month}>
-              <Typography
-                variant="subtitle1"
-                color="text.primary"
-                sx={{ mb: 1.5 }}
-              >
-                {month}
-              </Typography>
-
-              <Stack spacing={1}>
-                {monthTransactions.map((transaction) => {
-                  const type =
-                    transaction.category_name === 'Entrada'
-                      ? 'income'
-                      : 'expense'
-
-                  return (
-                    <TransactionItem
-                      key={transaction.id}
-                      transactionType={type}
-                      title={transaction.description}
-                      date={formatTransactionDate(transaction.transaction_date)}
-                      amount={formatTransactionAmount(type, transaction.amount)}
-                      onEdit={() => alert(`Editando: ${transaction.id}`)}
-                      onDelete={() => alert(`Deletando: ${transaction.id}`)}
-                    />
-                  )
-                })}
-              </Stack>
-            </Box>
-          ))}
+          {groupedTransactions.map(
+            ({ month, transactions: monthTransactions }) => (
+              <Box key={month}>
+                <Typography
+                  variant="subtitle1"
+                  color="text.primary"
+                  sx={{ mb: 1.5 }}
+                >
+                  {month}
+                </Typography>
+                <Stack spacing={1}>
+                  {monthTransactions.map((transaction) => {
+                    const type =
+                      transaction.category_name === 'Entrada'
+                        ? 'income'
+                        : 'expense'
+                    return (
+                      <TransactionItem
+                        key={transaction.id}
+                        transactionType={type}
+                        title={transaction.description}
+                        date={formatTransactionDate(
+                          transaction.transaction_date
+                        )}
+                        amount={formatTransactionAmount(
+                          type,
+                          transaction.amount
+                        )}
+                        onEdit={() => alert(`Editando: ${transaction.id}`)}
+                        onDelete={() => openDeleteModal(transaction.id)}
+                      />
+                    )
+                  })}
+                </Stack>
+              </Box>
+            )
+          )}
         </Stack>
       </Box>
+
+      <ConfirmationModal
+        open={modalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        title="Confirmar Exclusão"
+        description="Você tem certeza que deseja deletar esta transação? Esta ação não poderá ser desfeita."
+      />
     </Container>
   )
 }
