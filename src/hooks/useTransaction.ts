@@ -1,13 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-
 import { transactionService } from 'utilApi/api'
+import { useTransactionStore } from 'utilStore/stores/transactions'
 
-export interface TransactionGroup {
-  month: string
-  transactions: Transaction[]
-}
-
-interface Transaction {
+type Transaction = {
   id: string
   account_id: string
   amount: string
@@ -17,53 +12,135 @@ interface Transaction {
   category_name: string
 }
 
-export const useTransactions = (
-  accountId: string | null,
-  sortOrder: 'ASC' | 'DESC' = 'DESC'
-) => {
+type FetchTransactionsParams = {
+  accountId: string
+  orderBy: 'ASC' | 'DESC'
+}
+
+type useTransactionsParams = {
+  accountId: string | null
+  orderBy: 'ASC' | 'DESC'
+}
+
+// export interface TransactionGroup {
+//   month: string
+//   transactions: Transaction[]
+// }
+
+// interface Transaction {
+//   id: string
+//   account_id: string
+//   amount: string
+//   description: string
+//   transaction_date: string
+//   category_id: string
+//   category_name: string
+// }
+
+export const useTransactions = ({
+  accountId,
+  orderBy
+}: useTransactionsParams) => {
+  const {
+    setLoading: setLoadingTransaction,
+    setError: setErrorTransaction,
+    setSuccess: setSuccessTransaction,
+    setTransaction: setTransactionStore,
+    setDeleteStatus: setDeleteStatusTransaction,
+    deleteStatus: deleteStatusTransaction,
+    createStatus: createStatusTransaction,
+    resetAllStatus: resetAllStatusTransaction
+  } = useTransactionStore()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchTransactions = useCallback(async () => {
-    if (!accountId) {
-      setTransactions([])
-      return
-    }
+  const fetchTransactions = useCallback(
+    async ({ accountId, orderBy }: FetchTransactionsParams) => {
+      if (!accountId) {
+        setTransactions([])
+        return
+      }
 
-    setIsLoading(true)
-    setError(null)
+      setIsLoading(true)
+      setError(null)
+      setLoadingTransaction(true)
 
-    try {
-      const fetchedTransactions =
-        await transactionService.getTransactionsByAccountId(
-          accountId,
-          sortOrder as 'ASC' | 'DESC'
-        )
+      try {
+        const fetchedTransactions =
+          await transactionService.getTransactionsByAccountId({
+            accountId,
+            orderBy
+          })
 
-      setTransactions(fetchedTransactions)
-    } catch (err) {
-      setError('Não foi possível carregar o extrato.')
-      console.error('Falha ao buscar transações:', err)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [accountId, sortOrder])
+        setTransactions(fetchedTransactions)
+        setTransactionStore(fetchedTransactions)
+        setSuccessTransaction(true)
+      } catch (err) {
+        setError('Não foi possível carregar o extrato.')
+        console.error('Falha ao buscar transações:', err)
+        setErrorTransaction(err || 'Falha ao buscar transações')
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [
+      setErrorTransaction,
+      setLoadingTransaction,
+      setSuccessTransaction,
+      setTransactionStore
+    ]
+  )
 
   useEffect(() => {
-    fetchTransactions()
-  }, [fetchTransactions])
+    if (!accountId) return
+
+    fetchTransactions({
+      accountId,
+      orderBy
+    })
+  }, [accountId, orderBy, fetchTransactions, createStatusTransaction])
 
   const handleDeleteTransaction = async (transactionId: string) => {
+    setDeleteStatusTransaction({
+      loading: true,
+      success: false,
+      error: null
+    })
     try {
       await transactionService.deleteTransaction(transactionId)
 
-      await fetchTransactions()
+      setDeleteStatusTransaction({
+        loading: false,
+        success: true,
+        error: null
+      })
     } catch (err) {
+      // TODO: alterar para toast
       console.error(`Falha ao deletar transação ${transactionId}:`, err)
       alert('Não foi possível deletar a transação.')
+
+      setDeleteStatusTransaction({
+        loading: false,
+        success: false,
+        error: err || 'Falha ao deletar transação'
+      })
     }
   }
+
+  useEffect(() => {
+    if (deleteStatusTransaction.success && accountId) {
+      // Atualiza as transações após a exclusão com sucesso
+      resetAllStatusTransaction()
+      fetchTransactions({ accountId, orderBy })
+    }
+  }, [
+    deleteStatusTransaction.success,
+    accountId,
+    orderBy,
+    fetchTransactions,
+    resetAllStatusTransaction
+  ])
 
   const groupedTransactions = useMemo(() => {
     const grouped = transactions.reduce(

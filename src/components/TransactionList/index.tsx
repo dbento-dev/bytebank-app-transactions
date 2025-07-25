@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import { Alert, Box, CircularProgress, Stack, Typography } from '@mui/material'
@@ -12,69 +12,38 @@ import {
   formatTransactionDate
 } from '../../utils/formatters'
 
-// import { useTransactions } from '../../hooks/useTransaction'
+import { useTransactions } from '../../hooks/useTransaction'
 
 import { useAccountStore } from 'utilStore/stores/account'
 import { useUserStore } from 'utilStore/stores/user'
-import { useTransactionStore } from 'utilStore/stores/transactions'
 
 const TransactionList: React.FC = () => {
   const {
-    user: currentUser,
-    isLoading: isLoadingCurrentUser,
-    error: userError
+    user: currentUser
+    // isLoading: isLoadingCurrentUser,
+    // error: userError
   } = useUserStore()
 
   const {
-    transactions: currentUserTransactions,
+    account,
+    isLoading: isLoadingAccounts,
+    error: accountsError
+  } = useAccountStore()
+
+  const {
+    groupedTransactions,
+    isLoading,
     error: transactionError,
-    isLoading: isLoadingTransactions,
-    transactionHasPosted,
-    fetchTransactionsByAccountId,
-    clearSuccessFlags
-  } = useTransactionStore()
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const accounts = useAccountStore((state: { account: any }) => state.account)
-  const mainAccount = accounts && accounts.length > 0 ? accounts[0] : null
-
-  // const { groupedTransactions, handleDeleteTransaction, isLoading, error } =
-  //   useTransactions(mainAccount ? mainAccount.id : null, 'DESC')
+    handleDeleteTransaction
+  } = useTransactions({
+    accountId: account ? account?.id : null,
+    orderBy: 'DESC'
+  })
 
   const [modalOpen, setModalOpen] = useState(false)
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
     null
   )
-
-  useEffect(() => {
-    fetchTransactionsByAccountId({
-      accountId: mainAccount ? mainAccount.id : null,
-      orderBy: 'DESC'
-    })
-  }, [mainAccount])
-
-  useEffect(() => {
-    if (transactionHasPosted) {
-      fetchTransactionsByAccountId({
-        accountId: mainAccount ? mainAccount.id : null,
-        orderBy: 'DESC'
-      })
-      clearSuccessFlags()
-    }
-  }, [transactionHasPosted])
-
-  // useEffect(() => {
-  //   if (currentUser && mainAccount) {
-  //     fetchTransactionsByAccountId({
-  //       accountId: mainAccount ? mainAccount.id : null,
-  //       orderBy: 'DESC'
-  //     })
-  //   }
-  // }, [currentUser, mainAccount])
-
-  // useEffect(() => {
-  //   console.log('isLoadingTransactions', isLoadingTransactions)
-  // }, [isLoadingTransactions])
 
   const openDeleteModal = (id: string) => {
     setTransactionToDelete(id)
@@ -87,13 +56,13 @@ const TransactionList: React.FC = () => {
   }
 
   const confirmDelete = () => {
-    // if (transactionToDelete) {
-    //   handleDeleteTransaction(transactionToDelete)
-    // }
-    // closeDeleteModal()
+    if (transactionToDelete) {
+      handleDeleteTransaction(transactionToDelete)
+    }
+    closeDeleteModal()
   }
 
-  if (isLoadingTransactions || isLoadingCurrentUser) {
+  if (isLoading || isLoadingAccounts) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
         <CircularProgress />
@@ -101,7 +70,7 @@ const TransactionList: React.FC = () => {
     )
   }
 
-  if (transactionError || userError) {
+  if (transactionError || accountsError) {
     return <Alert severity="error">{transactionError}</Alert>
   }
 
@@ -131,26 +100,7 @@ const TransactionList: React.FC = () => {
           </Typography>
         </Stack>
 
-        <Stack spacing={1} sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
-          {currentUserTransactions.map((transaction) => {
-            // console.log('transaction:', transaction)
-            const type =
-              transaction.category_name === 'Entrada' ? 'income' : 'expense'
-            return (
-              <TransactionItem
-                key={transaction.id}
-                transactionType={type}
-                title={transaction.description}
-                date={formatTransactionDate(transaction.transaction_date)}
-                amount={formatTransactionAmount(type, transaction.amount)}
-                onEdit={() => alert(`Editando: ${transaction.id}`)}
-                onDelete={() => openDeleteModal(transaction.id)}
-              />
-            )
-          })}
-        </Stack>
-
-        {/* <Stack
+        <Stack
           spacing={2}
           sx={{
             maxHeight: '60vh',
@@ -194,7 +144,7 @@ const TransactionList: React.FC = () => {
               </Box>
             )
           )}
-        </Stack> */}
+        </Stack>
       </Box>
 
       <ConfirmationModal
