@@ -18,15 +18,27 @@ import { useAccountStore } from 'utilStore/stores/account'
 import { useUserStore } from 'utilStore/stores/user'
 
 const TransactionList: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const user = useUserStore((state: { user: any }) => state.user)
+  const {
+    user: currentUser
+    // isLoading: isLoadingCurrentUser,
+    // error: userError
+  } = useUserStore()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const accounts = useAccountStore((state: { account: any }) => state.account)
-  const mainAccount = accounts && accounts.length > 0 ? accounts[0] : null
+  const {
+    account,
+    isLoading: isLoadingAccounts,
+    error: accountsError
+  } = useAccountStore()
 
-  const { groupedTransactions, handleDeleteTransaction, isLoading, error } =
-    useTransactions(mainAccount ? mainAccount.id : null, 'DESC')
+  const {
+    groupedTransactions,
+    isLoading,
+    error: transactionError,
+    handleDeleteTransaction
+  } = useTransactions({
+    accountId: account ? account?.id : null,
+    orderBy: 'DESC'
+  })
 
   const [modalOpen, setModalOpen] = useState(false)
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
@@ -50,7 +62,7 @@ const TransactionList: React.FC = () => {
     closeDeleteModal()
   }
 
-  if (isLoading) {
+  if (isLoading || isLoadingAccounts) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
         <CircularProgress />
@@ -58,8 +70,8 @@ const TransactionList: React.FC = () => {
     )
   }
 
-  if (error) {
-    return <Alert severity="error">{error}</Alert>
+  if (transactionError || accountsError) {
+    return <Alert severity="error">{transactionError}</Alert>
   }
 
   return (
@@ -72,7 +84,10 @@ const TransactionList: React.FC = () => {
             mb: 4
           }}
         >
-          <UserInfo name={user?.name} avatarUrl={user?.avatarUrl} />
+          <UserInfo
+            name={currentUser?.name}
+            avatarUrl={currentUser?.avatarUrl}
+          />
         </Box>
 
         <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
