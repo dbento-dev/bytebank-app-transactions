@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { transactionService } from 'utilApi/api'
 import { useTransactionStore } from 'utilStore/stores/transactions'
 
-type Transaction = {
+export type Transaction = {
   id: string
   account_id: string
   amount: string
@@ -22,21 +22,6 @@ type useTransactionsParams = {
   orderBy: 'ASC' | 'DESC'
 }
 
-// export interface TransactionGroup {
-//   month: string
-//   transactions: Transaction[]
-// }
-
-// interface Transaction {
-//   id: string
-//   account_id: string
-//   amount: string
-//   description: string
-//   transaction_date: string
-//   category_id: string
-//   category_name: string
-// }
-
 export const useTransactions = ({
   accountId,
   orderBy
@@ -49,6 +34,7 @@ export const useTransactions = ({
     setDeleteStatus: setDeleteStatusTransaction,
     deleteStatus: deleteStatusTransaction,
     createStatus: createStatusTransaction,
+    updateStatus: updateStatusTransaction,
     resetAllStatus: resetAllStatusTransaction
   } = useTransactionStore()
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -69,8 +55,8 @@ export const useTransactions = ({
       try {
         const fetchedTransactions =
           await transactionService.getTransactionsByAccountId({
-            accountId,
-            orderBy
+            orderBy,
+            accountId
           })
 
         setTransactions(fetchedTransactions)
@@ -91,15 +77,6 @@ export const useTransactions = ({
       setTransactionStore
     ]
   )
-
-  useEffect(() => {
-    if (!accountId) return
-
-    fetchTransactions({
-      accountId,
-      orderBy
-    })
-  }, [accountId, orderBy, fetchTransactions, createStatusTransaction])
 
   const handleDeleteTransaction = async (transactionId: string) => {
     setDeleteStatusTransaction({
@@ -127,6 +104,21 @@ export const useTransactions = ({
       })
     }
   }
+
+  useEffect(() => {
+    if (!accountId) return
+
+    fetchTransactions({
+      accountId,
+      orderBy
+    })
+  }, [
+    accountId,
+    orderBy,
+    fetchTransactions,
+    createStatusTransaction,
+    updateStatusTransaction
+  ])
 
   useEffect(() => {
     if (deleteStatusTransaction.success && accountId) {
