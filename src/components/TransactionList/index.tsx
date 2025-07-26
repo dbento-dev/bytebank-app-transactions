@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import { Alert, Box, CircularProgress, Stack, Typography } from '@mui/material'
+import { transactionService } from 'utilApi/api'
 
 import {
   ConfirmationModal,
@@ -55,7 +56,21 @@ const TransactionList: React.FC = () => {
   )
 
   const handleSearchTransaction = async (term: string) => {
+    // TODO: Implement search functionality using hook and update the UI accordingly
     console.log('Searching transactions with term:', term)
+
+    try {
+      const response = await transactionService.searchTransactionsByAccount({
+        accountId: account ? account?.id : null,
+        search: term,
+        page: 1,
+        perPage: 10
+      })
+
+      console.log(response.data)
+    } catch (error) {
+      console.error('Erro ao buscar transações:', error)
+    }
   }
 
   const openDeleteModal = (id: string) => {
