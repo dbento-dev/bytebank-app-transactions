@@ -3,7 +3,12 @@ import React, { useState } from 'react'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import { Alert, Box, CircularProgress, Stack, Typography } from '@mui/material'
 
-import { ConfirmationModal, TransactionItem, UserInfo } from 'utilUi/components'
+import {
+  ConfirmationModal,
+  TransactionItem,
+  UserInfo,
+  TransactionSearch
+} from 'utilUi/components'
 
 import { Container } from './styles'
 
@@ -48,6 +53,10 @@ const TransactionList: React.FC = () => {
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(
     null
   )
+
+  const handleSearchTransaction = async (term: string) => {
+    console.log('Searching transactions with term:', term)
+  }
 
   const openDeleteModal = (id: string) => {
     setTransactionToDelete(id)
@@ -102,6 +111,12 @@ const TransactionList: React.FC = () => {
           <Typography variant="h5" fontWeight="bold">
             Extrato
           </Typography>
+        </Stack>
+
+        <Stack sx={{ mb: 2 }}>
+          <Box>
+            <TransactionSearch onSearch={handleSearchTransaction} />
+          </Box>
         </Stack>
 
         <Stack

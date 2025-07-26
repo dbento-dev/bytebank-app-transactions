@@ -71,7 +71,11 @@ const devConfig = {
           singleton: true,
           requiredVersion: deps['@mui/icons-material']
         },
-        zustand: { singleton: true, requiredVersion: deps.zustand }
+        zustand: { singleton: true, requiredVersion: deps.zustand },
+        'lodash.debounce': {
+          singleton: true,
+          requiredVersion: deps['lodash.debounce']
+        }
       }
     })
   ]
