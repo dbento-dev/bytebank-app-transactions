@@ -12,23 +12,27 @@ import {
   formatTransactionDate
 } from '../../utils/formatters'
 
-import { useTransactions } from '../../hooks/useTransaction'
+import { useTransactions, type Transaction } from '../../hooks/useTransaction'
 
 import { useAccountStore } from 'utilStore/stores/account'
 import { useUserStore } from 'utilStore/stores/user'
+import { useTransactionStore } from 'utilStore/stores/transactions'
 
 const TransactionList: React.FC = () => {
-  const {
-    user: currentUser
-    // isLoading: isLoadingCurrentUser,
-    // error: userError
-  } = useUserStore()
+  const { user: currentUser } = useUserStore()
 
   const {
     account,
     isLoading: isLoadingAccounts,
     error: accountsError
   } = useAccountStore()
+
+  const { setEditingTransaction: setEditingTransactionId } =
+    useTransactionStore()
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransactionId(transaction)
+  }
 
   const {
     groupedTransactions,
@@ -135,7 +139,7 @@ const TransactionList: React.FC = () => {
                           type,
                           transaction.amount
                         )}
-                        onEdit={() => alert(`Editando: ${transaction.id}`)}
+                        onEdit={() => handleEditTransaction(transaction)}
                         onDelete={() => openDeleteModal(transaction.id)}
                       />
                     )
