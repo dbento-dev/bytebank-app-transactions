@@ -37,6 +37,7 @@ export const useTransactions = ({
     updateStatus: updateStatusTransaction,
     resetAllStatus: resetAllStatusTransaction
   } = useTransactionStore()
+
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,8 +60,9 @@ export const useTransactions = ({
             accountId
           })
 
-        setTransactions(fetchedTransactions)
-        setTransactionStore(fetchedTransactions)
+        const { data } = fetchedTransactions
+        setTransactions(data)
+        setTransactionStore(data)
         setSuccessTransaction(true)
       } catch (err) {
         setError('Não foi possível carregar o extrato.')
