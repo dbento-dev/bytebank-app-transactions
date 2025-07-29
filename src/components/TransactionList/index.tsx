@@ -144,7 +144,7 @@ const TransactionList: React.FC = () => {
           <Stack
             spacing={2}
             sx={{
-              maxHeight: '60vh',
+              // maxHeight: '60vh',
               overflowY: 'auto'
             }}
           >
