@@ -12,19 +12,20 @@ export type Transaction = {
   category_name: string
 }
 
-type FetchTransactionsParams = {
-  accountId: string
-  orderBy: 'ASC' | 'DESC'
-}
-
 type useTransactionsParams = {
   accountId: string | null
   orderBy: 'ASC' | 'DESC'
+  search?: string
+  page?: number
+  perPage?: number
 }
 
 export const useTransactions = ({
   accountId,
-  orderBy
+  orderBy,
+  search = '',
+  page,
+  perPage
 }: useTransactionsParams) => {
   const {
     setLoading: setLoadingTransaction,
@@ -41,9 +42,26 @@ export const useTransactions = ({
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const [meta, setMeta] = useState<{
+    total: number
+    page: number
+    perPage: number
+    totalPages: number
+  }>({
+    total: 0,
+    page: 1,
+    perPage: 10,
+    totalPages: 0
+  })
 
   const fetchTransactions = useCallback(
-    async ({ accountId, orderBy }: FetchTransactionsParams) => {
+    async ({
+      accountId,
+      orderBy,
+      search,
+      page = 1,
+      perPage = 10
+    }: useTransactionsParams) => {
       if (!accountId) {
         setTransactions([])
         return
@@ -54,13 +72,16 @@ export const useTransactions = ({
       setLoadingTransaction(true)
 
       try {
-        const fetchedTransactions =
-          await transactionService.getTransactionsByAccountId({
-            orderBy,
-            accountId
-          })
+        const response = await transactionService.searchTransactionsByAccount({
+          accountId,
+          search,
+          orderBy,
+          page,
+          perPage
+        })
 
-        const { data } = fetchedTransactions
+        const { data, meta } = response
+        setMeta(meta)
         setTransactions(data)
         setTransactionStore(data)
         setSuccessTransaction(true)
@@ -112,11 +133,17 @@ export const useTransactions = ({
 
     fetchTransactions({
       accountId,
-      orderBy
+      orderBy,
+      search,
+      page,
+      perPage
     })
   }, [
     accountId,
     orderBy,
+    search,
+    page,
+    perPage,
     fetchTransactions,
     createStatusTransaction,
     updateStatusTransaction
@@ -126,12 +153,15 @@ export const useTransactions = ({
     if (deleteStatusTransaction.success && accountId) {
       // Atualiza as transações após a exclusão com sucesso
       resetAllStatusTransaction()
-      fetchTransactions({ accountId, orderBy })
+      fetchTransactions({ accountId, orderBy, search, page, perPage })
     }
   }, [
     deleteStatusTransaction.success,
     accountId,
     orderBy,
+    search,
+    page,
+    perPage,
     fetchTransactions,
     resetAllStatusTransaction
   ])
@@ -166,5 +196,11 @@ export const useTransactions = ({
     }))
   }, [transactions])
 
-  return { groupedTransactions, isLoading, error, handleDeleteTransaction }
+  return {
+    groupedTransactions,
+    isLoading,
+    error,
+    handleDeleteTransaction,
+    meta
+  }
 }
