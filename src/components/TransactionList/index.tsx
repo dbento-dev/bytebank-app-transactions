@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import { Alert, Box, CircularProgress, Stack, Typography } from '@mui/material'
-import { transactionService } from 'utilApi/api'
 
 import {
   ConfirmationModal,
