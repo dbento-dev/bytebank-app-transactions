@@ -1,7 +1,14 @@
 import React, { useState } from 'react'
 
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
-import { Alert, Box, CircularProgress, Stack, Typography } from '@mui/material'
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Pagination,
+  Stack,
+  Typography
+} from '@mui/material'
 
 import {
   ConfirmationModal,
@@ -24,6 +31,9 @@ import { useUserStore } from 'utilStore/stores/user'
 import { useTransactionStore } from 'utilStore/stores/transactions'
 
 const TransactionList: React.FC = () => {
+  const [page, setPage] = useState(1)
+  const perPage = 10
+
   const { user: currentUser } = useUserStore()
 
   const {
@@ -45,11 +55,14 @@ const TransactionList: React.FC = () => {
     groupedTransactions,
     isLoading: isLoadingTransactions,
     error: transactionError,
-    handleDeleteTransaction
+    handleDeleteTransaction,
+    meta
   } = useTransactions({
     accountId: account ? account?.id : null,
     orderBy: 'DESC',
-    search: searchTerm
+    search: searchTerm,
+    page,
+    perPage
   })
 
   const [modalOpen, setModalOpen] = useState(false)
@@ -58,9 +71,8 @@ const TransactionList: React.FC = () => {
   )
 
   const handleSearchTransaction = async (term: string) => {
-    // TODO: Implement search functionality using hook and update the UI accordingly
-    console.log('Searching transactions with term:', term)
     setSearchTerm(term)
+    setPage(1)
   }
 
   const openDeleteModal = (id: string) => {
@@ -176,6 +188,14 @@ const TransactionList: React.FC = () => {
           </Stack>
         )}
       </Box>
+
+      <Pagination
+        count={meta.totalPages}
+        page={page}
+        onChange={(_, value) => setPage(value)}
+        color="primary"
+        sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}
+      />
 
       <ConfirmationModal
         open={modalOpen}
