@@ -40,14 +40,17 @@ const TransactionList: React.FC = () => {
     setEditingTransactionId(transaction)
   }
 
+  const [searchTerm, setSearchTerm] = useState('')
+
   const {
     groupedTransactions,
-    isLoading,
+    isLoading: isLoadingTransactions,
     error: transactionError,
     handleDeleteTransaction
   } = useTransactions({
     accountId: account ? account?.id : null,
-    orderBy: 'DESC'
+    orderBy: 'DESC',
+    search: searchTerm
   })
 
   const [modalOpen, setModalOpen] = useState(false)
@@ -58,19 +61,7 @@ const TransactionList: React.FC = () => {
   const handleSearchTransaction = async (term: string) => {
     // TODO: Implement search functionality using hook and update the UI accordingly
     console.log('Searching transactions with term:', term)
-
-    try {
-      const response = await transactionService.searchTransactionsByAccount({
-        accountId: account ? account?.id : null,
-        search: term,
-        page: 1,
-        perPage: 10
-      })
-
-      console.log(response.data)
-    } catch (error) {
-      console.error('Erro ao buscar transações:', error)
-    }
+    setSearchTerm(term)
   }
 
   const openDeleteModal = (id: string) => {
@@ -90,7 +81,7 @@ const TransactionList: React.FC = () => {
     closeDeleteModal()
   }
 
-  if (isLoading || isLoadingAccounts) {
+  if (isLoadingAccounts) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
         <CircularProgress />
@@ -134,51 +125,57 @@ const TransactionList: React.FC = () => {
           </Box>
         </Stack>
 
-        <Stack
-          spacing={2}
-          sx={{
-            maxHeight: '60vh',
-            overflowY: 'auto'
-          }}
-        >
-          {groupedTransactions.map(
-            ({ month, transactions: monthTransactions }) => (
-              <Box key={month}>
-                <Typography
-                  variant="subtitle1"
-                  color="text.primary"
-                  sx={{ mb: 1.5 }}
-                >
-                  {month}
-                </Typography>
-                <Stack spacing={1}>
-                  {monthTransactions.map((transaction) => {
-                    const type =
-                      transaction.category_name === 'Entrada'
-                        ? 'income'
-                        : 'expense'
-                    return (
-                      <TransactionItem
-                        key={transaction.id}
-                        transactionType={type}
-                        title={transaction.description}
-                        date={formatTransactionDate(
-                          transaction.transaction_date
-                        )}
-                        amount={formatTransactionAmount(
-                          type,
-                          transaction.amount
-                        )}
-                        onEdit={() => handleEditTransaction(transaction)}
-                        onDelete={() => openDeleteModal(transaction.id)}
-                      />
-                    )
-                  })}
-                </Stack>
-              </Box>
-            )
-          )}
-        </Stack>
+        {isLoadingTransactions ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Stack
+            spacing={2}
+            sx={{
+              maxHeight: '60vh',
+              overflowY: 'auto'
+            }}
+          >
+            {groupedTransactions.map(
+              ({ month, transactions: monthTransactions }) => (
+                <Box key={month}>
+                  <Typography
+                    variant="subtitle1"
+                    color="text.primary"
+                    sx={{ mb: 1.5 }}
+                  >
+                    {month}
+                  </Typography>
+                  <Stack spacing={1}>
+                    {monthTransactions.map((transaction) => {
+                      const type =
+                        transaction.category_name === 'Entrada'
+                          ? 'income'
+                          : 'expense'
+                      return (
+                        <TransactionItem
+                          key={transaction.id}
+                          transactionType={type}
+                          title={transaction.description}
+                          date={formatTransactionDate(
+                            transaction.transaction_date
+                          )}
+                          amount={formatTransactionAmount(
+                            type,
+                            transaction.amount
+                          )}
+                          onEdit={() => handleEditTransaction(transaction)}
+                          onDelete={() => openDeleteModal(transaction.id)}
+                        />
+                      )
+                    })}
+                  </Stack>
+                </Box>
+              )
+            )}
+          </Stack>
+        )}
       </Box>
 
       <ConfirmationModal

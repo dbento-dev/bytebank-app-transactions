@@ -12,19 +12,16 @@ export type Transaction = {
   category_name: string
 }
 
-type FetchTransactionsParams = {
-  accountId: string
-  orderBy: 'ASC' | 'DESC'
-}
-
 type useTransactionsParams = {
   accountId: string | null
   orderBy: 'ASC' | 'DESC'
+  search?: string
 }
 
 export const useTransactions = ({
   accountId,
-  orderBy
+  orderBy,
+  search = ''
 }: useTransactionsParams) => {
   const {
     setLoading: setLoadingTransaction,
@@ -43,7 +40,7 @@ export const useTransactions = ({
   const [error, setError] = useState<string | null>(null)
 
   const fetchTransactions = useCallback(
-    async ({ accountId, orderBy }: FetchTransactionsParams) => {
+    async ({ accountId, orderBy, search }: useTransactionsParams) => {
       if (!accountId) {
         setTransactions([])
         return
@@ -54,13 +51,15 @@ export const useTransactions = ({
       setLoadingTransaction(true)
 
       try {
-        const fetchedTransactions =
-          await transactionService.getTransactionsByAccountId({
-            orderBy,
-            accountId
-          })
+        const response = await transactionService.searchTransactionsByAccount({
+          accountId,
+          search,
+          orderBy,
+          page: 1,
+          perPage: 100
+        })
 
-        const { data } = fetchedTransactions
+        const { data } = response
         setTransactions(data)
         setTransactionStore(data)
         setSuccessTransaction(true)
@@ -112,11 +111,13 @@ export const useTransactions = ({
 
     fetchTransactions({
       accountId,
-      orderBy
+      orderBy,
+      search
     })
   }, [
     accountId,
     orderBy,
+    search,
     fetchTransactions,
     createStatusTransaction,
     updateStatusTransaction
@@ -126,12 +127,13 @@ export const useTransactions = ({
     if (deleteStatusTransaction.success && accountId) {
       // Atualiza as transações após a exclusão com sucesso
       resetAllStatusTransaction()
-      fetchTransactions({ accountId, orderBy })
+      fetchTransactions({ accountId, orderBy, search })
     }
   }, [
     deleteStatusTransaction.success,
     accountId,
     orderBy,
+    search,
     fetchTransactions,
     resetAllStatusTransaction
   ])
