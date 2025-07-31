@@ -10,6 +10,7 @@ export type Transaction = {
   transaction_date: string
   category_id: string
   category_name: string
+  receipt_url?: string
 }
 
 type useTransactionsParams = {
