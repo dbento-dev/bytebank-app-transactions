@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+
 import { transactionService } from 'utilApi/api'
 import { useTransactionStore } from 'utilStore/stores/transactions'
+
+import { toast } from 'react-toastify'
 
 export type Transaction = {
   id: string
@@ -111,15 +114,15 @@ export const useTransactions = ({
     try {
       await transactionService.deleteTransaction(transactionId)
 
+      toast.success('Transação deletada com sucesso!')
       setDeleteStatusTransaction({
         loading: false,
         success: true,
         error: null
       })
     } catch (err) {
-      // TODO: alterar para toast
       console.error(`Falha ao deletar transação ${transactionId}:`, err)
-      alert('Não foi possível deletar a transação.')
+      toast.error('Falha ao deletar a transação. Tente novamente.')
 
       setDeleteStatusTransaction({
         loading: false,
