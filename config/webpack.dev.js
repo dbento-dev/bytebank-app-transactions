@@ -2,8 +2,6 @@ const { ModuleFederationPlugin } = require('webpack').container
 const { merge } = require('webpack-merge')
 const commonConfig = require('./webpack.common')
 const deps = require('../package.json').dependencies
-const { getEnvVars } = require('./getEnvVars')
-const { DefinePlugin } = require('webpack')
 
 const devConfig = {
   mode: 'development',
@@ -24,14 +22,13 @@ const devConfig = {
   },
 
   plugins: [
-    new DefinePlugin(getEnvVars()),
     new ModuleFederationPlugin({
       name: 'appTransactions',
       filename: 'remoteEntry.js',
       remotes: {
-        utilUi: `utilUi@${process.env.REACT_APP_UTIL_UI_URL}/remoteEntry.js`,
-        utilApi: `utilApi@${process.env.REACT_APP_UTIL_API_URL}/remoteEntry.js`,
-        utilStore: `utilStore@${process.env.REACT_APP_UTIL_STORE_URL}/remoteEntry.js`
+        utilUi: `utilUi@http://localhost:8310/remoteEntry.js`,
+        utilApi: `utilApi@http://localhost:8311/remoteEntry.js`,
+        utilStore: `utilStore@http://localhost:8312/remoteEntry.js`
       },
       exposes: {
         './Transactions': './src/components/TransactionList'
