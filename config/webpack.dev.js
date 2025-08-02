@@ -1,7 +1,6 @@
 const { ModuleFederationPlugin } = require('webpack').container
 const { merge } = require('webpack-merge')
-const commonConfig = require('./webpack.common')()
-
+const commonConfig = require('./webpack.common')
 const deps = require('../package.json').dependencies
 
 const devConfig = {
@@ -9,7 +8,6 @@ const devConfig = {
   output: {
     publicPath: 'http://localhost:3003/',
     filename: '[name].js'
-    // clean: true,
   },
 
   devServer: {
@@ -21,11 +19,6 @@ const devConfig = {
     headers: {
       'Access-Control-Allow-Origin': '*'
     }
-    // static: {
-    //   directory: path.join(__dirname, "../dist"),
-    // },
-    // compress: true,
-    // open: true,
   },
 
   plugins: [
@@ -40,7 +33,6 @@ const devConfig = {
       exposes: {
         './Transactions': './src/components/TransactionList'
       },
-
       shared: {
         ...deps,
         react: {
@@ -50,10 +42,6 @@ const devConfig = {
         'react-dom': {
           singleton: true,
           requiredVersion: deps['react-dom']
-        },
-        'react-router-dom': {
-          singleton: true,
-          requiredVersion: deps['react-router-dom']
         },
         '@emotion/react': {
           singleton: true,
@@ -71,11 +59,7 @@ const devConfig = {
           singleton: true,
           requiredVersion: deps['@mui/icons-material']
         },
-        zustand: { singleton: true, requiredVersion: deps.zustand },
-        'lodash.debounce': {
-          singleton: true,
-          requiredVersion: deps['lodash.debounce']
-        }
+        zustand: { singleton: true, requiredVersion: deps.zustand }
       }
     })
   ]

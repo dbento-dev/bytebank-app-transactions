@@ -1,8 +1,9 @@
 const { ModuleFederationPlugin } = require('webpack').container
 const { merge } = require('webpack-merge')
-const commonConfig = require('./webpack.common')()
+const commonConfig = require('./webpack.common')
 const deps = require('../package.json').dependencies
 const path = require('path')
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') })
 
 const prodConfig = {
   mode: 'production',
@@ -17,21 +18,22 @@ const prodConfig = {
       name: 'appTransactions',
       filename: 'remoteEntry.js',
       remotes: {
-        utilUi: 'utilUi@https://bytebank-util-ui.vercel.app/remoteEntry.js',
-        utilApi: 'utilApi@https://bytebank-util-api.vercel.app/remoteEntry.js',
-        utilStore:
-          'utilStore@https://bytebank-util-store.vercel.app/remoteEntry.js'
+        utilUi: `utilUi@${process.env.UTIL_UI_URL}/remoteEntry.js`,
+        utilApi: `utilApi@${process.env.UTIL_API_URL}/remoteEntry.js`,
+        utilStore: `utilStore@${process.env.UTIL_STORE_URL}/remoteEntry.js`
       },
       exposes: {
         './Transactions': './src/components/TransactionList'
       },
       shared: {
         ...deps,
-        react: { singleton: true, requiredVersion: deps.react },
-        'react-dom': { singleton: true, requiredVersion: deps['react-dom'] },
-        'react-router-dom': {
+        react: {
           singleton: true,
-          requiredVersion: deps['react-router-dom']
+          requiredVersion: deps.react
+        },
+        'react-dom': {
+          singleton: true,
+          requiredVersion: deps['react-dom']
         },
         '@emotion/react': {
           singleton: true,
@@ -49,15 +51,7 @@ const prodConfig = {
           singleton: true,
           requiredVersion: deps['@mui/icons-material']
         },
-        zustand: { singleton: true, requiredVersion: deps.zustand },
-        zod: {
-          singleton: true,
-          requiredVersion: deps['zod']
-        },
-        'lodash.debounce': {
-          singleton: true,
-          requiredVersion: deps['lodash.debounce']
-        }
+        zustand: { singleton: true, requiredVersion: deps.zustand }
       }
     })
   ]
