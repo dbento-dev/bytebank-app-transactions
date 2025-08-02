@@ -34,7 +34,7 @@ const TransactionList: React.FC = () => {
   const [page, setPage] = useState(1)
   const perPage = 15
 
-  const { user: currentUser } = useUserStore()
+  const { user: currentUser, loading: isLoadingUser } = useUserStore()
 
   const {
     account,
@@ -92,7 +92,7 @@ const TransactionList: React.FC = () => {
     closeDeleteModal()
   }
 
-  if (isLoadingAccounts || groupedTransactions.length == 0) {
+  if (isLoadingAccounts || isLoadingUser) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
         <CircularProgress />
