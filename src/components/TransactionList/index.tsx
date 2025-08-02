@@ -32,7 +32,7 @@ import { useUserStore } from 'utilStore/stores/user'
 
 const TransactionList: React.FC = () => {
   const [page, setPage] = useState(1)
-  const perPage = 10
+  const perPage = 15
 
   const { user: currentUser } = useUserStore()
 
