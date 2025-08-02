@@ -13,8 +13,8 @@ import {
 import {
   ConfirmationModal,
   TransactionItem,
-  UserInfo,
-  TransactionSearch
+  TransactionSearch,
+  UserInfo
 } from 'utilUi/components'
 
 import { Container } from './styles'
@@ -27,8 +27,8 @@ import {
 import { useTransactions, type Transaction } from '../../hooks/useTransaction'
 
 import { useAccountStore } from 'utilStore/stores/account'
-import { useUserStore } from 'utilStore/stores/user'
 import { useTransactionStore } from 'utilStore/stores/transactions'
+import { useUserStore } from 'utilStore/stores/user'
 
 const TransactionList: React.FC = () => {
   const [page, setPage] = useState(1)
@@ -92,7 +92,7 @@ const TransactionList: React.FC = () => {
     closeDeleteModal()
   }
 
-  if (isLoadingAccounts) {
+  if (isLoadingAccounts || groupedTransactions.length == 0) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
         <CircularProgress />
