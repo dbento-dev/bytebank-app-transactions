@@ -185,6 +185,9 @@ const TransactionList: React.FC = () => {
                 </Box>
               )
             )}
+            {groupedTransactions?.length === 0 && (
+              <Alert severity="warning">Nenhuma transação encontrada.</Alert>
+            )}
           </Stack>
         )}
       </Box>
