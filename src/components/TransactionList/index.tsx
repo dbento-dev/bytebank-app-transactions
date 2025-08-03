@@ -136,19 +136,15 @@ const TransactionList: React.FC = () => {
           </Box>
         </Stack>
 
-        {isLoadingTransactions ? (
+        {isLoadingTransactions && (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress />
           </Box>
-        ) : (
-          <Stack
-            spacing={2}
-            sx={{
-              // maxHeight: '60vh',
-              overflowY: 'auto'
-            }}
-          >
-            {groupedTransactions.map(
+        )}
+
+        <Stack spacing={2}>
+          {groupedTransactions.length > 0 &&
+            groupedTransactions.map(
               ({ month, transactions: monthTransactions }) => (
                 <Box key={month}>
                   <Typography
@@ -185,12 +181,16 @@ const TransactionList: React.FC = () => {
                 </Box>
               )
             )}
-            {groupedTransactions?.length === 0 && (
-              <Alert severity="warning">Nenhuma transação encontrada.</Alert>
-            )}
-          </Stack>
-        )}
+        </Stack>
       </Box>
+
+      {groupedTransactions.length === 0 && !isLoadingTransactions && (
+        <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Typography variant="subtitle1" color="text.secondary">
+            Nenhuma transação encontrada.
+          </Typography>
+        </Box>
+      )}
 
       <Pagination
         count={meta.totalPages}
