@@ -35,11 +35,13 @@ Este componente é projetado para ser consumido por uma aplicação host, integr
 
 ### 💻 WEB Layout
 
-!Web Layout
+<img width="242" height="846" alt="image" src="https://github.com/user-attachments/assets/1ea1f5d8-5e2d-4465-bbe6-a21a65d25c0c" />
+
 
 ### 📱 MOBILE Layout
 
-!Mobile Layout
+<img width="377" height="681" alt="image" src="https://github.com/user-attachments/assets/1c52a135-cd86-4d84-ae9a-5bf8d5989d93" />
+
 
 ---
 
