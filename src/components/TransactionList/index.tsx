@@ -132,56 +132,56 @@ const TransactionList: React.FC = () => {
 
         <Stack sx={{ mb: 2 }}>
           <Box>
-            <TransactionSearch onSearch={handleSearchTransaction} />
+            <TransactionSearch onSearch={handleSearchTransaction} disabled />
           </Box>
         </Stack>
 
-        {isLoadingTransactions && (
+        {isLoadingTransactions ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
             <CircularProgress />
           </Box>
+        ) : (
+          <Stack spacing={2}>
+            {groupedTransactions.length > 0 &&
+              groupedTransactions.map(
+                ({ month, transactions: monthTransactions }) => (
+                  <Box key={month}>
+                    <Typography
+                      variant="subtitle1"
+                      color="text.primary"
+                      sx={{ mb: 1.5 }}
+                    >
+                      {month}
+                    </Typography>
+                    <Stack spacing={1}>
+                      {monthTransactions.map((transaction) => {
+                        const type =
+                          transaction.category_name === 'Entrada'
+                            ? 'income'
+                            : 'expense'
+                        return (
+                          <TransactionItem
+                            key={transaction.id}
+                            transactionType={type}
+                            title={transaction.description}
+                            date={formatTransactionDate(
+                              transaction.transaction_date
+                            )}
+                            amount={formatTransactionAmount(
+                              type,
+                              transaction.amount
+                            )}
+                            onEdit={() => handleEditTransaction(transaction)}
+                            onDelete={() => openDeleteModal(transaction.id)}
+                          />
+                        )
+                      })}
+                    </Stack>
+                  </Box>
+                )
+              )}
+          </Stack>
         )}
-
-        <Stack spacing={2}>
-          {groupedTransactions.length > 0 &&
-            groupedTransactions.map(
-              ({ month, transactions: monthTransactions }) => (
-                <Box key={month}>
-                  <Typography
-                    variant="subtitle1"
-                    color="text.primary"
-                    sx={{ mb: 1.5 }}
-                  >
-                    {month}
-                  </Typography>
-                  <Stack spacing={1}>
-                    {monthTransactions.map((transaction) => {
-                      const type =
-                        transaction.category_name === 'Entrada'
-                          ? 'income'
-                          : 'expense'
-                      return (
-                        <TransactionItem
-                          key={transaction.id}
-                          transactionType={type}
-                          title={transaction.description}
-                          date={formatTransactionDate(
-                            transaction.transaction_date
-                          )}
-                          amount={formatTransactionAmount(
-                            type,
-                            transaction.amount
-                          )}
-                          onEdit={() => handleEditTransaction(transaction)}
-                          onDelete={() => openDeleteModal(transaction.id)}
-                        />
-                      )
-                    })}
-                  </Stack>
-                </Box>
-              )
-            )}
-        </Stack>
       </Box>
 
       {groupedTransactions.length === 0 && !isLoadingTransactions && (
@@ -192,13 +192,15 @@ const TransactionList: React.FC = () => {
         </Box>
       )}
 
-      <Pagination
-        count={meta.totalPages}
-        page={page}
-        onChange={(_, value) => setPage(value)}
-        color="primary"
-        sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}
-      />
+      {groupedTransactions.length > 0 && !isLoadingTransactions && (
+        <Pagination
+          count={meta.totalPages}
+          page={page}
+          onChange={(_, value) => setPage(value)}
+          color="primary"
+          sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}
+        />
+      )}
 
       <ConfirmationModal
         open={modalOpen}
